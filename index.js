@@ -3,7 +3,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_SK);
 const port = process.env.PORT || 5000;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.8eq7kh0.mongodb.net/?retryWrites=true&w=majority`;
@@ -88,7 +88,7 @@ async function run() {
     // users Collection CURD
     app.get("/api/v1/users", async (req, res) => {
       try {
-        const result = await usersCollection.find().toArray;
+        const result = await usersCollection.find().toArray();
         res.send(result);
       } catch (error) {
         res.send([]);
@@ -134,14 +134,58 @@ async function run() {
         res.send({ message: false });
       }
     });
+    app.patch("/api/v1/usersroll/:id", async (req, res) => {
+      try {
+        console.log("achi");
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+
+        const userinfo = req.body;
+        console.log(userinfo);
+        const updateDoc = {
+          $set: userinfo,
+        };
+        const result = await usersCollection.updateOne(filter, updateDoc);
+        res.send({ message: true });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
 
     // survey collection CURD Oparetion
     app.get("/api/v1/survey", async (req, res) => {
       try {
         let surveyObj = {};
         const category = req.query?.category;
+
         if (category) {
           surveyObj.category = category;
+        }
+
+        const result = await surveyCollection.find(surveyObj).toArray();
+        res.send(result);
+      } catch (error) {
+        res.send([]);
+      }
+    });
+    app.get("/api/v1/survey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+
+        const query = { _id: new ObjectId(id) };
+        const result = await surveyCollection.findOne(query);
+        res.send(result);
+      } catch (error) {
+        res.send({});
+      }
+    });
+    app.get("/api/v1/mysurvey", async (req, res) => {
+      try {
+        let surveyObj = {};
+        const email = req.query?.email;
+        console.log(email);
+        if (email) {
+          surveyObj.email = email;
         }
 
         const result = await surveyCollection.find(surveyObj).toArray();
@@ -154,6 +198,73 @@ async function run() {
       try {
         const data = req.body;
         const result = await surveyCollection.insertOne(data);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
+    app.patch("/api/v1/survey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const data = req.body;
+
+        const updateDoc = {
+          $set: data,
+        };
+        const result = await surveyCollection.updateOne(query, updateDoc);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
+    app.patch("/api/v1/surveydislike/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const data = req.body.disLike;
+        console.log(data);
+        const updateDoc = {
+          $set: {
+            disLike: data,
+          },
+        };
+        const result = await surveyCollection.updateOne(query, updateDoc);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
+    app.patch("/api/v1/surveylike/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const data = req.body.like;
+        console.log(data);
+        const updateDoc = {
+          $set: {
+            like: data,
+          },
+        };
+        const result = await surveyCollection.updateOne(query, updateDoc);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
+    app.patch("/api/v1/surveyvote/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const data = req.body;
+        const votar = data?.votarName;
+        const matchemail = { votarName: votar };
+        console.log(matchemail);
+
+        const updateDoc = {
+          $set: data,
+        };
+        const result = await surveyCollection.updateOne(query, updateDoc);
         res.send({ message: "success" });
       } catch (error) {
         res.send({ message: false });
