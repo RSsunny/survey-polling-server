@@ -218,6 +218,24 @@ async function run() {
         res.send({ message: false });
       }
     });
+    app.patch("/api/v1/surveyreport/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        console.log(id);
+        const query = { _id: new ObjectId(id) };
+
+        const data = req.body;
+        console.log(data);
+
+        const updateDoc = {
+          $set: data,
+        };
+        const result = await surveyCollection.updateOne(query, updateDoc);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: "dhfhfdhf" });
+      }
+    });
     app.patch("/api/v1/surveydislike/:id", async (req, res) => {
       try {
         const id = req.params.id;
