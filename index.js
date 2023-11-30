@@ -12,8 +12,8 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 app.use(express.json());
 app.use(
   cors({
-    // origin: ["https://marvelous-squirrel-2e9a26.netlify.app"],
-    origin: ["http://localhost:5173"],
+    origin: ["https://marvelous-squirrel-2e9a26.netlify.app"],
+    // origin: ["http://localhost:5173"],
     credentials: true,
     optionSuccessStatus: 200,
   })
