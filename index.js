@@ -168,6 +168,29 @@ async function run() {
         res.send([]);
       }
     });
+    app.get("/api/v1/surveysort", async (req, res) => {
+      try {
+        const vote = req.query?.voteCount;
+        const sortbyvote = vote === "most" ? -1 : vote === "low" && 1;
+
+        console.log(sortbyvote);
+        if (sortbyvote) {
+          const result = await surveyCollection
+            .find()
+            .sort({ voteCount: sortbyvote })
+            .toArray();
+          res.send(result);
+        } else {
+          const category = vote;
+          console.log(category);
+          const query = { category: category };
+          const result = await surveyCollection.find(query).toArray();
+          res.send(result);
+        }
+      } catch (error) {
+        res.send([]);
+      }
+    });
     app.get("/api/v1/survey/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -213,6 +236,16 @@ async function run() {
           $set: data,
         };
         const result = await surveyCollection.updateOne(query, updateDoc);
+        res.send({ message: "success" });
+      } catch (error) {
+        res.send({ message: false });
+      }
+    });
+    app.delete("/api/v1/survey/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await surveyCollection.deleteOne(query);
         res.send({ message: "success" });
       } catch (error) {
         res.send({ message: false });
